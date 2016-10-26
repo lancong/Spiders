@@ -65,9 +65,9 @@ class JDBase(object):
         # print("request url: " + url)
 
         if self.cookie:
-            return (captureutil.urlrequest(url, None, self.cookie, self.useragent), url)
+            return (captureutil.urlrequestforjd(url, None, self.cookie, self.useragent), url)
         else:
-            return (captureutil.urlrequest(url, None, None, self.useragent), url)
+            return (captureutil.urlrequestforjd(url, None, None, self.useragent), url)
 
             # return captureutil.urlrequest(self.url, None)
 

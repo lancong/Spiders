@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-jd_out_dir = '/Users/Lan/TestDir/output/'
+jd_out_dir = '/Users/Lan/TestDir/output3/'
 
 # 目标urls
 jd_urls = '/Users/Lan/TestDir/output/jdurl.txt'

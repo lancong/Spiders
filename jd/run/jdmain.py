@@ -31,8 +31,8 @@ def main():
     lastindexlogpath = dirpath + jdconfig.jd_lastindex
 
     if os.path.exists(lastindexlogpath):
-        lasttaskid = open(lastindexlogpath, 'r').readline()
-        lasttaskid = int(lasttaskid)
+        with open(lastindexlogpath, 'r') as lasttaskid:
+            lasttaskid = int(lasttaskid.readline())
         # ----------- 注意
         total = lasttaskid - jdconfig.jd_url_start
         if total <= 0:
@@ -83,7 +83,7 @@ def main():
         for th in threads:
             th.join()
 
-        # captureutil.printlog("我又完成一次任务")
+            # captureutil.printlog("我又完成一次任务")
 
     # 结束时间
     endtime = time()
@@ -93,6 +93,7 @@ def main():
     # 写入耗时结果
     costtimepath = dirpath + 'jd_' + captureutil.time_format_yyyymmddhhmmss() + '.txt'
     captureutil.write(str(float(endtime - starttime) / 60), costtimepath, 'w')
+
     pass
 
 

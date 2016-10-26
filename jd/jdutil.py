@@ -15,30 +15,21 @@ def inittask(urlsfile, succeedfile, failedfile):
         captureutil.printlog(urlsfile + " not exist")
         return []
 
-    alltaskopener = open(urlsfile, 'r')
-    alltaskreadlines = alltaskopener.readlines()
+    with  open(urlsfile, 'r') as alltaskopener:
+        alltaskreadlines = alltaskopener.readlines()
 
-    succeedfileopener = None
     succeedfilereadlines = []
     if os.path.exists(succeedfile):
-        succeedfileopener = open(succeedfile, "r")
-        succeedfilereadlines = succeedfileopener.readlines()
+        with open(succeedfile, "r") as succeedfileopener:
+            succeedfilereadlines = succeedfileopener.readlines()
 
-    failedfileopener = None
     failedfilereadlines = []
     if os.path.exists(failedfile):
-        failedfileopener = open(failedfile, "r")
-        failedfilereadlines = failedfileopener.readlines()
+        with  open(failedfile, "r") as failedfileopener:
+            failedfilereadlines = failedfileopener.readlines()
 
     beforetasks = captureutil.removeduplicate(succeedfilereadlines, alltaskreadlines)
     nowtasks = captureutil.removeduplicate(failedfilereadlines, beforetasks)
-
-    if alltaskopener:
-        alltaskopener.close()
-    if succeedfileopener:
-        succeedfileopener.close()
-    if failedfileopener:
-        failedfileopener.close()
 
     return nowtasks
 
@@ -47,25 +38,18 @@ def inittask(urlsfile, succeedfile, failedfile):
 def inittask2(urls, succeedfile, failedfile):
     alltaskreadlines = urls
 
-    succeedfileopener = None
     succeedfilereadlines = []
     if os.path.exists(succeedfile):
-        succeedfileopener = open(succeedfile, "r")
-        succeedfilereadlines = succeedfileopener.readlines()
+        with open(succeedfile, "r") as succeedfileopener:
+            succeedfilereadlines = succeedfileopener.readlines()
 
-    failedfileopener = None
     failedfilereadlines = []
     if os.path.exists(failedfile):
-        failedfileopener = open(failedfile, "r")
-        failedfilereadlines = failedfileopener.readlines()
+        with open(failedfile, "r") as failedfileopener:
+            failedfilereadlines = failedfileopener.readlines()
 
     beforetasks = captureutil.removeduplicate(succeedfilereadlines, alltaskreadlines)
     nowtasks = captureutil.removeduplicate(failedfilereadlines, beforetasks)
-
-    if succeedfileopener:
-        succeedfileopener.close()
-    if failedfileopener:
-        failedfileopener.close()
 
     return nowtasks
 
@@ -124,17 +108,38 @@ def jd_pc_cookie(areaen):
 
 
 # 商品价格
-def jd_price(storeid):
-    baseurl = 'http://p.3.cn/prices/mgets?skuIds=J_' + str(storeid) + ',J_&type=1'
-    priceJson = captureutil.openurl(baseurl)
+def jd_price(url):
+    # ss = randnum(1000000,8888888)
+    # https://p.3.cn/prices/mgets?callback=jQuery7955799&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_10478786444
+
+    start = url.rfind('/')
+    end = url.rfind('.')
+    num = url[start + 1:end]
+
+    baseurl = 'http://p.3.cn/prices/mgets?callback=jQuery' + str(
+            captureutil.randnum(1000000,
+                                8888888)) + '&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_' + str(
+            num)
+
+    # captureutil.printlog("价格请求接口url: " + baseurl)
+
+    # baseurl = 'http://p.3.cn/prices/mgets?skuIds=J_' + str(storeid) + ',J_&type=1'
+    priceJson = captureutil.openurl2(baseurl, refererurl=url)
+
+    jsstart = priceJson.find('{')
+    jsend = priceJson.find('}')
+    priceJson = priceJson[jsstart:jsend + 1]
+
     if priceJson:
-        # [{"id":"J_882282","p":"38.00","m":"45.00","op":"42.00"}]
-        js = json.loads(priceJson)
-        # 得到一个数组
-        js = js[0]
-        if 'p' in js:
-            return js['p']
-    return None
+        # jQuery3493581([{"id":"J_10550439205","p":"79.00","m":"199.00","op":"106.00"}]);
+        try:
+            js = json.loads(priceJson)
+            # 得到一个数组
+            if 'p' in js:
+                return js['p']
+        except:
+            return '-1.00'
+    return '-1.00'
 
 
 def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
@@ -177,9 +182,9 @@ if __name__ == '__main__':
     # print(jd_pc_cookie('beijing'))
 
 
-    price = jd_price("882282")
-
-    print(price)
+    # price = jd_price("882282")
+    #
+    # print(price)
 
     # list = createtask()
     #
@@ -187,5 +192,25 @@ if __name__ == '__main__':
     #
     # for l in list[0]:
     #     print("ss   " + l)
+
+
+    # with open('/Users/Lan/Downloads/untitled.html') as file:
+    #     file = file.readlines()
+    #
+    # if file:
+    #     print("null")
+    # else:
+    #     print("not null")
+
+
+    price = jd_price("http://item.jd.hk/10550439205.html")
+    print(price)
+
+    # jss = 'jQuery3147839([{"id":"J_10550439205","p":"79.00","m":"199.00","op":"106.00"}]);'
+    # jsstart = jss.find('{')
+    # jsend = jss.find('}')
+    # priceJson = jss[jsstart + 1:jsend]
+
+    # print(priceJson)
 
     pass

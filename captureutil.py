@@ -63,12 +63,81 @@ def urlrequest(url, referurl=None, cookie=None, useragent=None, postdata=None, i
         1
     return content
 
+# 网络请求,并返回页面
+def urlrequestforjd(url, referurl=None, cookie=None, useragent=None, postdata=None, ip=None, timeout=60):
+    cookie_support = urllib.request.HTTPCookieProcessor(cookiejar.CookieJar())
+    if ip:
+        proxy_support = urllib.request.ProxyHandler({'http': ip})
+        opener = urllib.request.build_opener(proxy_support, cookie_support, urllib.request.ProxyBasicAuthHandler())
+        urllib.request.install_opener(opener)
+    else:
+        opener = urllib.request.build_opener(cookie_support, urllib.request.ProxyBasicAuthHandler())
+        urllib.request.install_opener(opener)
+
+    headers = {'User-Agent': useragent}
+
+    req = urllib.request.Request(url, headers=headers)
+
+    req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml')
+    req.add_header('Host', 'item.jd.hk')
+    req.add_header('Upgrade-Insecure-Requests', '1')
+
+    # Host:item.jd.hk
+    # Upgrade-Insecure-Requests:1
+
+    # req.add_header('Accept-Encoding', 'gzip, deflate, sdch')
+    # req.add_header('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8')
+
+    if referurl:
+        req.add_header('Referer', referurl)
+    if cookie:
+        req.add_header('Cookie', cookie)
+    if postdata:
+        # try:
+        #     urllib.parse.urlencode(postdata)
+        # except:
+        pass
+
+    content = ''
+
+    try:
+        # 超时会产生异常
+        content = urllib.request.urlopen(req, timeout=timeout).read()
+    except:
+        pass
+
+    try:
+        gzp_content = StringIO(content)
+        gzipper = gzip.GzipFile(fileobj=gzp_content)
+        content = gzipper.read()
+    except:
+        1
+    return content
+
 
 def openurl(url):
     session = requests.session()
     headers = {
         "User-Agent": getpcua(),
         "Accept": "text/html,application/xhtml+xml,application/xml"}
+    # "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"}
+
+    req = session.get(url, headers=headers)
+    req.encoding = "utf-8"
+    # return BeautifulSoup(req.text, "html.parser")
+    return req.text
+
+
+def openurl2(url, refererurl, host='p.3.cn'):
+    session = requests.session()
+    headers = {
+        "User-Agent": getpcua(),
+        "Accept": "text/html,application/xhtml+xml,application/xml",
+        "Referer": refererurl,
+        "Host": host,
+        'Cache-Control': 'max-age=0',
+        'Connection': 'keep-alive'
+    }
     # "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"}
 
     req = session.get(url, headers=headers)
@@ -125,17 +194,22 @@ def mkdirs(path):
 
 
 def write(data, path, mode="a", charset='utf-8'):
-    writer = None
-    try:
-        writer = codecs.open(path, mode, charset)
+    with codecs.open(path, mode, charset) as writer:
         writer.write(data)
         writer.write("\r\n")
         writer.flush()
-    except:
-        print("write file to " + path + " error")
-    finally:
-        if writer:
-            writer.close()
+
+        # writer = None
+        # try:
+        #     writer = codecs.open(path, mode, charset)
+        #     writer.write(data)
+        #     writer.write("\r\n")
+        #     writer.flush()
+        # except:
+        #     print("write file to " + path + " error")
+        # finally:
+        #     if writer:
+        #         writer.close()
 
 
 # 生成随机整形数字
@@ -156,15 +230,16 @@ def deletefile(file):
 
 # 分发任务
 def dispatchtask(lists, threadnum):
+    # 任务总列表
+    tasklists = []
+
     # 单线程不拆分任务
     if threadnum < 1:
-        return lists
+        tasklists.append(lists)
+        return tasklists
 
     # list size
     listsize = len(lists)
-
-    # 任务总列表
-    tasklists = []
 
     if threadnum > listsize:
         tasklists.append(lists)
@@ -274,13 +349,19 @@ if __name__ == '__main__':
     # for l in ls:
     #     printlog(l)
 
-    content = openurl('http://p.3.cn/prices/mgets?skuIds=J_326154,J_&type=1')
+    # Referer:https://item.jd.com/10478786444.html
+    # content = openurl('http://p.3.cn/prices/mgets?skuIds=J_326154,J_&type=1')
 
     # js = json.loads(str(content))
 
-    print(content)
+    # print(content)
     # printlog(content)
 
     import json
+
+    # https://p.3.cn/prices/mgets?callback=jQuery7955799&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_10478786444
+    while True:
+        ss = randnum(1000000, 8888888)
+        print(ss)
 
     pass

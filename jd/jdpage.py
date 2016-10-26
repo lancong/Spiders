@@ -10,13 +10,7 @@ import captureutil
 
 # 提取链接中的商品id,并返回价格
 def getstoreprice(url):
-    start = url.rfind('/')
-    end = url.rfind('.')
-    num = url[start + 1:end]
-    price = ''
-    if num.isdigit():
-        price = jdutil.jd_price(num)
-    return '\t>' + price
+    return '\t>' + jdutil.jd_price(url)
 
 
 class JDPage(JDBase):
@@ -136,14 +130,16 @@ class JDPage(JDBase):
 pass
 
 if __name__ == '__main__':
-    htmltext = captureutil.urlrequest("http://item.jd.hk/1000539.html", None, None, captureutil.getpcua(), None, None,
+    htmltext = captureutil.urlrequest("http://p.3.cn/prices/mgets?skuIds=J_1000017,J_&type=1", None, None,
+                                      captureutil.getpcua(), None, None,
                                       10)
-    html = BeautifulSoup(htmltext, "html.parser")
-    sources = html.find("div", {'class': 'crumb fl clearfix'})
+    print(htmltext)
+    # html = BeautifulSoup(htmltext, "html.parser")
+    # sources = html.find("div", {'class': 'crumb fl clearfix'})
     # print(sources)
-    divtext = sources.get_text()
+    # divtext = sources.get_text()
 
-    print(divtext)
+    print(htmltext)
     # divtext = sources.get_text()
     # currentresult = captureutil.arrangement(divtext, '\n', '')
     #
