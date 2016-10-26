@@ -178,6 +178,33 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
         jd.sleep(start, end)
 
 
+def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
+
+    if cookie:
+        JDBase.setcookie(cookie)
+    JDBase.setsucceedlog(succeedlog)
+    JDBase.setfailedlog(failedlog)
+    JDBase.setoutputlog(outlog)
+    JDBase.setua(captureutil.getpcua())
+    JDBase.setrequestpath(task)
+    JDBase.execute()
+
+    captureutil.printlog('process  ' + JDBase.getshowlog() + '\t\n')
+
+    # 获取结果是否成功
+    issucceed = JDBase.getresult()
+
+    if issucceed:
+        # 保存成功flag
+        JDBase.savesucceedlog(task)
+    else:
+        # 保存失败flag
+        JDBase.savefailedlog(task)
+
+        # 睡眠
+    JDBase.sleep(start, end)
+
+
 if __name__ == '__main__':
     # print(jd_pc_cookie('beijing'))
 
