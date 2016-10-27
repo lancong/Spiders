@@ -63,6 +63,7 @@ def urlrequest(url, referurl=None, cookie=None, useragent=None, postdata=None, i
         1
     return content
 
+
 # 网络请求,并返回页面
 def urlrequestforjd(url, referurl=None, cookie=None, useragent=None, postdata=None, ip=None, timeout=60):
     cookie_support = urllib.request.HTTPCookieProcessor(cookiejar.CookieJar())
@@ -193,6 +194,30 @@ def mkdirs(path):
         os.makedirs(path)
 
 
+def read_file(fpath):
+    BLOCK_SIZE = 128
+    with open(fpath, 'rb') as f:
+        while True:
+            block = f.readline(BLOCK_SIZE)
+            if block:
+                yield block
+            else:
+                return
+
+
+def read(fpath):
+    BLOCK_SIZE = 4086
+    with open(fpath, 'r') as f:
+        while True:
+            block = f.readlines(BLOCK_SIZE)
+            if block:
+                yield block
+            else:
+                return
+
+    pass
+
+
 def write(data, path, mode="a", charset='utf-8'):
     with codecs.open(path, mode, charset) as writer:
         writer.write(data)
@@ -310,9 +335,10 @@ def printlog(msg):
 
 # 去重(将list2中包含list1的内容去掉)
 def removeduplicate(list1, list2):
-    list1 = clean(list1)
-    list2 = clean(list2)
+    # list1 = clean(list1)
+    # list2 = clean(list2)
     for list in list1:
+        list = list.strip()
         if list in list2:
             list2.remove(list)
     return list2
@@ -359,9 +385,40 @@ if __name__ == '__main__':
 
     import json
 
+
     # https://p.3.cn/prices/mgets?callback=jQuery7955799&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_10478786444
-    while True:
-        ss = randnum(1000000, 8888888)
-        print(ss)
+    # while True:
+    #     ss = randnum(1000000, 8888888)
+    #     print(ss)
+
+    def read(fpath):
+        BLOCK_SIZE = 4086
+        with codecs.open(fpath, 'r') as f:
+            while True:
+                block = f.readlines(BLOCK_SIZE)
+                if block:
+                    yield block
+                else:
+                    return
+
+
+    file = read('jdurlall.txt')
+
+    # print(type(file.__next__()))
+
+    lss = file.__next__()
+
+    print(type(lss))
+    print(file.__next__())
+    print(file.__next__())
+    print(file.__next__())
+    print(file.__next__())
+    # for l in lss:
+    #     print(l.strip() == '3301200')
+    #     print(type(l))
+
+    # print("haha",str(file.__next__()))
+    # print("haha2",str(file.__next__()))
+    # # print("haha3",str(file.__next__()))
 
     pass

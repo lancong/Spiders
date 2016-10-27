@@ -1,5 +1,3 @@
-
-
 import threading
 import requests
 
@@ -64,19 +62,55 @@ def request():
     pass
 
 
+# def generator_function():
+#     for i in range(10):
+#         yield i
+#
+#
+# for item in generator_function():
+#     print(item)
+
 if __name__ == '__main__':
 
+    # def generator_function():
+    #     for i in range(10):
+    #         yield i
+    #
+    # for item in generator_function():
+    #     print(item)
+
+
+    def read_file(fpath):
+        BLOCK_SIZE = 128
+        with open(fpath, 'rb') as f:
+            while True:
+                block = f.readline(BLOCK_SIZE)
+                if block:
+                    yield block
+                else:
+                    return
+
+
+    lines = read_file('test.py')
+    # print(lines)
+    # flag = True
+    # while flag:
+    #     try:
+    #         print("new: ",lines.__next__())
+    #     except StopIteration:
+    #         flag = False
+    #         pass
 
     # request()
 
-    threads = []
-    for num in range(1, 300):
-        th = threading.Thread(target=request)
-        th.start()
-        print("thread num: " + str(num))
-        threads.append(th)
-
-    for th in threads:
-        th.join()
+    # threads = []
+    # for num in range(1, 300):
+    #     th = threading.Thread(target=request)
+    #     th.start()
+    #     print("thread num: " + str(num))
+    #     threads.append(th)
+    #
+    # for th in threads:
+    #     th.join()
 
     pass

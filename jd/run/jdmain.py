@@ -8,8 +8,6 @@ from time import time
 import captureutil
 from jd import jdutil
 from jd import jdconfig
-
-# 初始化任务
 from jd.jdpage import JDPage
 
 
@@ -77,7 +75,7 @@ def main():
         threads = []
         for task in tasks:
             # th = threading.Thread(target=jdutil.jdholder, args=(task, jd, succeedlog, failedlog, outlog, cookie, 0, 5))
-            th = threading.Thread(target=jdutil.jdholder, args=(task, jd, succeedlog, failedlog, outlog, cookie, 5, 20))
+            th = threading.Thread(target=jdutil.jdholder, args=(task, jd, succeedlog, failedlog, outlog, cookie, 5, 10))
             th.start()
             threads.append(th)
         for th in threads:

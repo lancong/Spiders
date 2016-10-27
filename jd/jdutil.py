@@ -35,22 +35,28 @@ def inittask(urlsfile, succeedfile, failedfile):
 
 
 # 适用于聚美
-def inittask2(urls, succeedfile, failedfile):
-    alltaskreadlines = urls
+def inittask2(alltaskreadlines, succeedfile, failedfile):
+    beforetasks = []
+    if os.path.exists(succeedfile) and os.path.getsize(succeedfile) > 0:
+        slls = captureutil.read(succeedfile)
+        while True:
+            try:
+                sll = slls.__next__()
+                beforetasks = captureutil.removeduplicate(sll, alltaskreadlines)
+            except StopIteration:
+                break
 
-    succeedfilereadlines = []
-    if os.path.exists(succeedfile):
-        with open(succeedfile, "r") as succeedfileopener:
-            succeedfilereadlines = succeedfileopener.readlines()
-
-    failedfilereadlines = []
-    if os.path.exists(failedfile):
-        with open(failedfile, "r") as failedfileopener:
-            failedfilereadlines = failedfileopener.readlines()
-
-    beforetasks = captureutil.removeduplicate(succeedfilereadlines, alltaskreadlines)
-    nowtasks = captureutil.removeduplicate(failedfilereadlines, beforetasks)
-
+    nowtasks = []
+    if os.path.exists(failedfile) and os.path.getsize(failedfile) > 0:
+        flls = captureutil.read(failedfile)
+        while True:
+            try:
+                fll = flls.__next__()
+                nowtasks = captureutil.removeduplicate(fll, beforetasks)
+            except StopIteration:
+                break
+    else:
+        print("failed file size = 0")
     return nowtasks
 
 
@@ -179,7 +185,6 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
 
 
 def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
-
     if cookie:
         JDBase.setcookie(cookie)
     JDBase.setsucceedlog(succeedlog)
@@ -229,9 +234,12 @@ if __name__ == '__main__':
     # else:
     #     print("not null")
 
+    size  = os.path.getsize('jdutil.py')
 
-    price = jd_price("http://item.jd.hk/10550439205.html")
-    print(price)
+    print(size)
+
+    # price = jd_price("http://item.jd.hk/10550439205.html")
+    # print(price)
 
     # jss = 'jQuery3147839([{"id":"J_10550439205","p":"79.00","m":"199.00","op":"106.00"}]);'
     # jsstart = jss.find('{')
