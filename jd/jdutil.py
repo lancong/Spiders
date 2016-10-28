@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import os
-import captureutil
 import json
+import captureutil
 
-# 适用于聚美
 from jd import jdconfig
 
 
-def inittask(urlsfile, succeedfile, failedfile):
-    exist = captureutil.isfileexist(urlsfile)
+def init_task(urlsfile, succeedfile, failedfile):
+    exist = captureutil.file_exist(urlsfile)
 
     if not exist:
-        captureutil.printlog(urlsfile + " not exist")
+        captureutil.print_log(urlsfile + " not exist")
         return []
 
     with  open(urlsfile, 'r') as alltaskopener:
@@ -28,23 +27,25 @@ def inittask(urlsfile, succeedfile, failedfile):
         with  open(failedfile, "r") as failedfileopener:
             failedfilereadlines = failedfileopener.readlines()
 
-    beforetasks = captureutil.removeduplicate(succeedfilereadlines, alltaskreadlines)
-    nowtasks = captureutil.removeduplicate(failedfilereadlines, beforetasks)
+    beforetasks = captureutil.remove_duplicate(succeedfilereadlines, alltaskreadlines)
+    nowtasks = captureutil.remove_duplicate(failedfilereadlines, beforetasks)
 
     return nowtasks
 
 
 # 适用于聚美
-def inittask2(alltaskreadlines, succeedfile, failedfile):
+def init_task2(alltaskreadlines, succeedfile, failedfile):
     beforetasks = []
     if os.path.exists(succeedfile) and os.path.getsize(succeedfile) > 0:
         slls = captureutil.read(succeedfile)
         while True:
             try:
                 sll = slls.__next__()
-                beforetasks = captureutil.removeduplicate(sll, alltaskreadlines)
+                beforetasks = captureutil.remove_duplicate(sll, alltaskreadlines)
             except StopIteration:
                 break
+    else:
+        beforetasks = alltaskreadlines
 
     nowtasks = []
     if os.path.exists(failedfile) and os.path.getsize(failedfile) > 0:
@@ -52,11 +53,12 @@ def inittask2(alltaskreadlines, succeedfile, failedfile):
         while True:
             try:
                 fll = flls.__next__()
-                nowtasks = captureutil.removeduplicate(fll, beforetasks)
+                nowtasks = captureutil.remove_duplicate(fll, beforetasks)
             except StopIteration:
                 break
     else:
-        print("failed file size = 0")
+        nowtasks = beforetasks
+        captureutil.print_log("failed file size = 0")
     return nowtasks
 
 
@@ -64,14 +66,12 @@ def inittask2(alltaskreadlines, succeedfile, failedfile):
 # def createtask(startid=188078, total=2, allid=4000000):
 def createtask(startid=jdconfig.jd_url_start, total=5000, allid=jdconfig.jd_url_end):
     tasklist = []
-    lastid = startid
     for taskid in range(total):
         tempid = startid + taskid
         if tempid <= allid:
             lastid = tempid
             tasklist.append(str(lastid))
-            # print("id:" + str(taskid))
-    return (tasklist, lastid + 1)
+    return tasklist
 
 
 def jd_pc_parameter_dic(areaen):
@@ -152,10 +152,10 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
     jd = JDBase
 
     # if cookie:
-    jd.setcookie(cookie)
-    jd.setsucceedlog(succeedlog)
-    jd.setfailedlog(failedlog)
-    jd.setoutputlog(outlog)
+    jd.set_cookie(cookie)
+    jd.set_succeed_log_path(succeedlog)
+    jd.set_failed_log_path(failedlog)
+    jd.set_result_save_path(outlog)
 
     taskslen = len(tasks)
 
@@ -164,21 +164,21 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
     for task in tasks:
         count += 1
 
-        jd.setua(captureutil.getpcua())
-        jd.setrequestpath(task)
+        jd.set_useragent(captureutil.get_pc_useragent())
+        jd.set_request_path(task)
         jd.execute()
 
-        captureutil.printlog('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jd.getshowlog() + '\t\n')
+        captureutil.print_log('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jd.getshowlog() + '\t\n')
 
         # 获取结果是否成功
-        issucceed = jd.getresult()
+        issucceed = jd.get_result()
 
         if issucceed:
             # 保存成功flag
-            jd.savesucceedlog(task)
+            jd.save_succeed_log(task)
         else:
             # 保存失败flag
-            jd.savefailedlog(task)
+            jd.save_failed_log(task)
 
         # 睡眠
         jd.sleep(start, end)
@@ -186,25 +186,25 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
 
 def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
     if cookie:
-        JDBase.setcookie(cookie)
-    JDBase.setsucceedlog(succeedlog)
-    JDBase.setfailedlog(failedlog)
-    JDBase.setoutputlog(outlog)
-    JDBase.setua(captureutil.getpcua())
-    JDBase.setrequestpath(task)
+        JDBase.set_cookie(cookie)
+    JDBase.set_succeed_log_path(succeedlog)
+    JDBase.set_failed_log_path(failedlog)
+    JDBase.set_result_save_path(outlog)
+    JDBase.set_useragent(captureutil.get_pc_useragent())
+    JDBase.set_request_path(task)
     JDBase.execute()
 
-    captureutil.printlog('process  ' + JDBase.getshowlog() + '\t\n')
+    captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
 
     # 获取结果是否成功
-    issucceed = JDBase.getresult()
+    issucceed = JDBase.get_result()
 
     if issucceed:
         # 保存成功flag
-        JDBase.savesucceedlog(task)
+        JDBase.save_succeed_log(task)
     else:
         # 保存失败flag
-        JDBase.savefailedlog(task)
+        JDBase.save_failed_log(task)
 
         # 睡眠
     JDBase.sleep(start, end)
@@ -234,7 +234,7 @@ if __name__ == '__main__':
     # else:
     #     print("not null")
 
-    size  = os.path.getsize('jdutil.py')
+    size = os.path.getsize('jdutil.py')
 
     print(size)
 

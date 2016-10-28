@@ -6,10 +6,10 @@ import captureutil
 
 # 适用于聚美
 def inittask(urlsfile, succeedfile, failedfile):
-    exist = captureutil.isfileexist(urlsfile)
+    exist = captureutil.file_exist(urlsfile)
 
     if not exist:
-        captureutil.printlog(urlsfile + " not exist")
+        captureutil.print_log(urlsfile + " not exist")
         return []
 
     alltaskopener = open(urlsfile, 'r')
@@ -27,8 +27,8 @@ def inittask(urlsfile, succeedfile, failedfile):
         failedfileopener = open(failedfile, "r")
         failedfilereadlines = failedfileopener.readlines()
 
-    beforetasks = captureutil.removeduplicate(succeedfilereadlines, alltaskreadlines)
-    nowtasks = captureutil.removeduplicate(failedfilereadlines, beforetasks)
+    beforetasks = captureutil.remove_duplicate(succeedfilereadlines, alltaskreadlines)
+    nowtasks = captureutil.remove_duplicate(failedfilereadlines, beforetasks)
 
     if alltaskopener:
         alltaskopener.close()
@@ -79,10 +79,10 @@ def jumeiholder(tasks, JuMeiBase, succeedlog, failedlog, outlog, cookie=None, st
     jumei = JuMeiBase
 
     # if cookie:
-    jumei.setcookie(cookie)
-    jumei.setsucceedlog(succeedlog)
-    jumei.setfailedlog(failedlog)
-    jumei.setoutputlog(outlog)
+    jumei.set_cookie(cookie)
+    jumei.set_succeed_log_path(succeedlog)
+    jumei.set_failed_log_path(failedlog)
+    jumei.set_result_save_path(outlog)
 
     taskslen = len(tasks)
 
@@ -91,21 +91,21 @@ def jumeiholder(tasks, JuMeiBase, succeedlog, failedlog, outlog, cookie=None, st
     for task in tasks:
         count += 1
 
-        jumei.setua(captureutil.getpcua())
-        jumei.setrequestpath(task)
+        jumei.set_useragent(captureutil.get_pc_useragent())
+        jumei.set_request_path(task)
         jumei.execute()
 
-        captureutil.printlog('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jumei.getshowlog() + '\t\n')
+        captureutil.print_log('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jumei.getshowlog() + '\t\n')
 
         # 获取结果是否成功
-        issucceed = jumei.getresult()
+        issucceed = jumei.get_result()
 
         if issucceed:
             # 保存成功flag
-            jumei.savesucceedlog(task)
+            jumei.save_succeed_log(task)
         else:
             # 保存失败flag
-            jumei.savefailedlog(task)
+            jumei.save_failed_log(task)
 
         # 睡眠
         jumei.sleep(start, end)

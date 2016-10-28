@@ -15,7 +15,7 @@ class MainCategoryUrls():
         self.gethtml()
 
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.getpcua())
+        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
 
     def geturls(self):
@@ -42,7 +42,7 @@ class ParentPage():
 
     # 得到页面内容
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.getpcua())
+        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
 
     # 返回基准url和页面最大数
@@ -109,7 +109,7 @@ class ParentPageUrl():
         self.gethtml()
 
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.getpcua())
+        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
 
     # 得到当前类别
@@ -144,7 +144,7 @@ class PageInfo():
         self.init()
 
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.getpcua())
+        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
         pass
 
@@ -166,7 +166,7 @@ class PageInfo():
             if category:
                 s = category.get_text()
                 s = captureutil.arrangement(s, "\n", '+')
-                return captureutil.removelastchar(s, '+')
+                return captureutil.remove_last_char(s, '+')
 
     # 得到标签
     def gettag(self):
@@ -175,7 +175,7 @@ class PageInfo():
             if tag:
                 s = tag.get_text()
                 s = captureutil.arrangement(s, "\n", '+')
-                return captureutil.removelastchar(s, '+')
+                return captureutil.remove_last_char(s, '+')
 
     # 得到应用名称
     def getappname(self):
@@ -208,7 +208,7 @@ def func(lists, maincategory, outfile):
 
             # 打印日志
             # captureutil.printlog(currenturl + '\t' + appname)
-            captureutil.printlog('[' + str(count) + '/' + str(alllen) + '] ' + currenturl)
+            captureutil.print_log('[' + str(count) + '/' + str(alllen) + '] ' + currenturl)
 
             outinfo = currenturl + '\t' + maincategory + '>' + appname + '\tc:' + category + '\tt:' + tag
 
@@ -236,7 +236,7 @@ def main():
 
     allurls = []
 
-    captureutil.printlog('update request urls ...')
+    captureutil.print_log('update request urls ...')
 
     for specurl in specurls:
         maincategoryurls = MainCategoryUrls(specurl)
@@ -245,7 +245,7 @@ def main():
 
     urls = captureutil.liststolist(allurls)
 
-    captureutil.printlog('update request urls finished, len: ' + str(len(urls)))
+    captureutil.print_log('update request urls finished, len: ' + str(len(urls)))
 
     for url in urls:
 
@@ -263,7 +263,7 @@ def main():
 
                 if currenturls and len(currenturls) > 0:
 
-                    tasks = captureutil.dispatchtask(currenturls, 10)
+                    tasks = captureutil.task_dispatch(currenturls, 10)
 
                     threads = []
 
@@ -278,7 +278,7 @@ def main():
 
         # 写入结果
         captureutil.write('\r\n------ i am line -----\r\n', outfile)
-        captureutil.printlog("has finish: " + url)
+        captureutil.print_log("has finish: " + url)
 
         sleep(captureutil.randnum(10, 30))
 

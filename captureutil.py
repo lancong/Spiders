@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import codecs
-import gzip
-from http import cookiejar
-from io import StringIO
 import os
-import random
+import gzip
 import time
+import random
 import urllib
-
+import codecs
 import requests
-from bs4 import BeautifulSoup
-
 import captureconfig
 import urllib.request
+
+from io import StringIO
+from http import cookiejar
+from bs4 import BeautifulSoup
 from urllib.parse import quote
 
 
@@ -65,7 +64,7 @@ def urlrequest(url, referurl=None, cookie=None, useragent=None, postdata=None, i
 
 
 # 网络请求,并返回页面
-def urlrequestforjd(url, referurl=None, cookie=None, useragent=None, postdata=None, ip=None, timeout=60):
+def url_request_for_jd(url, referurl=None, cookie=None, useragent=None, postdata=None, ip=None, timeout=60):
     cookie_support = urllib.request.HTTPCookieProcessor(cookiejar.CookieJar())
     if ip:
         proxy_support = urllib.request.ProxyHandler({'http': ip})
@@ -116,10 +115,10 @@ def urlrequestforjd(url, referurl=None, cookie=None, useragent=None, postdata=No
     return content
 
 
-def openurl(url):
+def open_url(url):
     session = requests.session()
     headers = {
-        "User-Agent": getpcua(),
+        "User-Agent": get_pc_useragent(),
         "Accept": "text/html,application/xhtml+xml,application/xml"}
     # "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8"}
 
@@ -129,10 +128,16 @@ def openurl(url):
     return req.text
 
 
+def fetch(url, retry=0):
+    s = requests.Session()
+
+    pass
+
+
 def openurl2(url, refererurl, host='p.3.cn'):
     session = requests.session()
     headers = {
-        "User-Agent": getpcua(),
+        "User-Agent": get_pc_useragent(),
         "Accept": "text/html,application/xhtml+xml,application/xml",
         "Referer": refererurl,
         "Host": host,
@@ -148,7 +153,7 @@ def openurl2(url, refererurl, host='p.3.cn'):
 
 
 # pc user-agent
-def getpcua():
+def get_pc_useragent():
     ua = captureconfig.user_agent_pc
     index = randnum(0, len(ua) - 1)
     return ua[index]
@@ -156,7 +161,7 @@ def getpcua():
 
 
 # mobile user-agent
-def getmoblieua():
+def get_mobile_useragent():
     ua = captureconfig.user_agent_mobile
     index = randnum(0, len(ua) - 1)
     return ua[index]
@@ -194,17 +199,6 @@ def mkdirs(path):
         os.makedirs(path)
 
 
-def read_file(fpath):
-    BLOCK_SIZE = 128
-    with open(fpath, 'rb') as f:
-        while True:
-            block = f.readline(BLOCK_SIZE)
-            if block:
-                yield block
-            else:
-                return
-
-
 def read(fpath):
     BLOCK_SIZE = 4086
     with open(fpath, 'r') as f:
@@ -215,26 +209,12 @@ def read(fpath):
             else:
                 return
 
-    pass
-
 
 def write(data, path, mode="a", charset='utf-8'):
     with codecs.open(path, mode, charset) as writer:
         writer.write(data)
         writer.write("\r\n")
         writer.flush()
-
-        # writer = None
-        # try:
-        #     writer = codecs.open(path, mode, charset)
-        #     writer.write(data)
-        #     writer.write("\r\n")
-        #     writer.flush()
-        # except:
-        #     print("write file to " + path + " error")
-        # finally:
-        #     if writer:
-        #         writer.close()
 
 
 # 生成随机整形数字
@@ -248,13 +228,13 @@ def urlencode(text):
 
 
 # 删除文件
-def deletefile(file):
+def file_delete(file):
     if os.path.exists(file):
         os.remove(file)
 
 
 # 分发任务
-def dispatchtask(lists, threadnum):
+def task_dispatch(lists, threadnum):
     # 任务总列表
     tasklists = []
 
@@ -289,7 +269,7 @@ def dispatchtask(lists, threadnum):
             tasklists[taskindex].append(lists[index])
             taskindex += 1
 
-    printlog("thread queue: " + str(len(tasklists)) + '\t\n')
+    print_log("thread queue: " + str(len(tasklists)) + '\t\n')
 
     return tasklists
 
@@ -320,7 +300,7 @@ def arrangement(str, split, append):
 
 
 # 移除字符串最后一个字符
-def removelastchar(str, char):
+def remove_last_char(str, char):
     index = str.find(char, len(str) - 1, len(str))
     if index > 0:
         return str[:index]
@@ -328,13 +308,18 @@ def removelastchar(str, char):
 
 
 # 输出日志
-def printlog(msg):
+def print_log(msg):
     if captureconfig.showlog:
+        print(time_format_yyyymmddhhmmss2() + " " + str(msg))
+
+# 调度日志
+def print_log_debug(msg):
+    if not captureconfig.showlog:
         print(time_format_yyyymmddhhmmss2() + " " + str(msg))
 
 
 # 去重(将list2中包含list1的内容去掉)
-def removeduplicate(list1, list2):
+def remove_duplicate(list1, list2):
     # list1 = clean(list1)
     # list2 = clean(list2)
     for list in list1:
@@ -351,18 +336,34 @@ def clean(list):
     return ls
 
 
-def isfileexist(file):
+# byte to str
+def byte_to_str(byte):
+    result = ''
+    try:
+        result = byte.decode()
+    except:
+        return result
+    return result
+
+def file_exist(file):
     return os.path.exists(file)
 
 
-def htmlformat(html):
+def to_bs_object(html):
     return BeautifulSoup(html, 'html.parser')
 
 
 import json
 
 if __name__ == '__main__':
-    ss = '新闻资讯+阅读+资讯+新闻+男性+阅读教育+订阅+'
+
+    num = 0
+    while True:
+        num += 1
+        print(get_pc_useragent())
+        if num == 20:
+            break
+
     # index = ss.find('+', len(ss) - 1, len(ss))
     # if index > 0:
     #     ss = ss[:index]
@@ -385,34 +386,33 @@ if __name__ == '__main__':
 
     import json
 
-
     # https://p.3.cn/prices/mgets?callback=jQuery7955799&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_10478786444
     # while True:
     #     ss = randnum(1000000, 8888888)
     #     print(ss)
 
-    def read(fpath):
-        BLOCK_SIZE = 4086
-        with codecs.open(fpath, 'r') as f:
-            while True:
-                block = f.readlines(BLOCK_SIZE)
-                if block:
-                    yield block
-                else:
-                    return
-
-
-    file = read('jdurlall.txt')
-
-    # print(type(file.__next__()))
-
-    lss = file.__next__()
-
-    print(type(lss))
-    print(file.__next__())
-    print(file.__next__())
-    print(file.__next__())
-    print(file.__next__())
+    # def read(fpath):
+    #     BLOCK_SIZE = 4086
+    #     with codecs.open(fpath, 'r') as f:
+    #         while True:
+    #             block = f.readlines(BLOCK_SIZE)
+    #             if block:
+    #                 yield block
+    #             else:
+    #                 return
+    #
+    #
+    # file = read('jdurlall.txt')
+    #
+    # # print(type(file.__next__()))
+    #
+    # lss = file.__next__()
+    #
+    # print(type(lss))
+    # print(file.__next__())
+    # print(file.__next__())
+    # print(file.__next__())
+    # print(file.__next__())
     # for l in lss:
     #     print(l.strip() == '3301200')
     #     print(type(l))
@@ -420,5 +420,6 @@ if __name__ == '__main__':
     # print("haha",str(file.__next__()))
     # print("haha2",str(file.__next__()))
     # # print("haha3",str(file.__next__()))
+
 
     pass

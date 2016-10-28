@@ -18,7 +18,7 @@ if __name__ == '__main__':
     jumei.setshowlog(out)
 
     jumei.setcookie(None)
-    jumei.setua(captureutil.getpcua())
+    jumei.setua(captureutil.get_pc_useragent())
     jumei.setrequestpath("847191")
 
     jumei.findsource()

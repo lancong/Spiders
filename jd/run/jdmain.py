@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
-
-import os
 import threading
-from time import time
-
 import captureutil
+
 from jd import jdutil
+from time import time
 from jd import jdconfig
 from jd.jdpage import JDPage
 
+'''
+
+京东爬虫任务开始入口
+'''
 
 def main():
     # 开始时间
@@ -25,52 +27,27 @@ def main():
     # target urls
     urlfile = jdconfig.jd_urls
 
-    # 最后一次生成任务的id
-    lastindexlogpath = dirpath + jdconfig.jd_lastindex
-
-    if os.path.exists(lastindexlogpath):
-        with open(lastindexlogpath, 'r') as lasttaskid:
-            lasttaskid = int(lasttaskid.readline())
-        # ----------- 注意
-        total = lasttaskid - jdconfig.jd_url_start
-        if total <= 0:
-            total = 1000
-        allurls = jdutil.createtask(jdconfig.jd_url_start, total)
-    else:
-        allurls = jdutil.createtask()
-        lasttaskid = allurls[1]
+    total = jdconfig.jd_url_end - jdconfig.jd_url_start
+    allurls = jdutil.createtask(jdconfig.jd_url_start, total)
 
     # succeed log
     succeedlog = dirpath + jdconfig.jd_succeed
     # failed log
     failedlog = dirpath + jdconfig.jd_failed
     # 初始化任务
-    inittasks = jdutil.inittask2(allurls[0], succeedlog, failedlog)
+    inittasks = jdutil.init_task2(allurls, succeedlog, failedlog)
 
-    captureutil.printlog("任务总数: " + str(len(inittasks)))
+    captureutil.print_log("任务总数: " + str(len(inittasks)))
 
     # 按thread num 分配任务
-    tasks = captureutil.dispatchtask(inittasks, jdconfig.thread_num)
+    tasks = captureutil.task_dispatch(inittasks, jdconfig.thread_num)
 
     # 设置cookie
     cookie = jdutil.jd_pc_cookie('beijing')
 
     jd = JDPage()
 
-    first = True
-
     while True:
-
-        if not first:
-            allurls = jdutil.createtask(int(lasttaskid))
-            lasttaskid = allurls[1]
-            # 写入上次任务生成id
-            captureutil.write(str(lasttaskid), lastindexlogpath, 'w')
-            tasks = captureutil.dispatchtask(allurls[0], jdconfig.thread_num)
-            if len(tasks) <= 0:
-                break
-        else:
-            first = False
 
         threads = []
         for task in tasks:
@@ -81,12 +58,10 @@ def main():
         for th in threads:
             th.join()
 
-            # captureutil.printlog("我又完成一次任务")
-
     # 结束时间
     endtime = time()
 
-    captureutil.printlog("网页数据获取结束,耗时: " + str(float(endtime - starttime) / 60) + "分钟")
+    captureutil.print_log("网页数据获取结束,耗时: " + str(float(endtime - starttime) / 60) + "分钟")
 
     # 写入耗时结果
     costtimepath = dirpath + 'jd_' + captureutil.time_format_yyyymmddhhmmss() + '.txt'
@@ -97,6 +72,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+    # ua.update()
 
     # # 日志输出目录
     # dirpath = jdconfig.jd_out_dir

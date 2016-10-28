@@ -22,7 +22,7 @@ def main():
     # 初始化任务
     tasks = inittask(urlfile, succeedlog, failedlog)
     # 按thread num 分配任务
-    tasks = captureutil.dispatchtask(tasks, jumeiconfig.thread_num)
+    tasks = captureutil.task_dispatch(tasks, jumeiconfig.thread_num)
 
     # JumeiUrlStartWithD 实例
     jumei = JumeiUrlStartWithH()

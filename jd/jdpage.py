@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from bs4 import BeautifulSoup
+import captureutil
 
 from jd import jdutil
 from jd.jdbase import JDBase
-
-import captureutil
-
+from bs4 import BeautifulSoup
 
 # 提取链接中的商品id,并返回价格
-def getstoreprice(url):
+def get_price(url):
     return '\t>' + jdutil.jd_price(url)
 
 
@@ -17,57 +15,58 @@ class JDPage(JDBase):
     def __init__(self):
         JDBase.__init__(self)
 
-    def findsource(self):
-        contentall = self.gethtml()
+    # 解析京东商品页面信息
+    def parse_html_source(self):
+
+        # 请求返回网页信息
+        html_source = self.get_html_source()
 
         # 请求获取的html正文内容
-        content = contentall[0]
+        content = html_source[0]
         # 请求url
-        requesturl = contentall[1]
+        request_url = html_source[1]
 
         # 将正文内容转换为一个BeautifulSoup对象
         html = BeautifulSoup(content, "html.parser")
 
-        sources = None
-
-        matchtype = 0
+        source = None
+        type_match = 0
 
         while True:
-            sources = html.find("div", {'class': 'breadcrumb'})
-            if sources:
-                matchtype = 1
-                # captureutil.printlog(requesturl + " 匹配类型1")
+            source = html.find("div", {'class': 'breadcrumb'})
+            if source:
+                type_match = 1
+                # captureutil.printlog(request_url + " 匹配类型1")
                 break
-            sources = html.find("div", {'id': 'itemInfo'})
-            if sources:
-                matchtype = 2
-                # captureutil.printlog(requesturl + " 匹配类型2")
+            source = html.find("div", {'id': 'itemInfo'})
+            if source:
+                type_match = 2
+                # captureutil.printlog(request_url + " 匹配类型2")
                 break
-            sources = html.find("div", {'class': 'crumb fl clearfix'})
-            if sources:
-                matchtype = 3
-                # captureutil.printlog(requesturl + " 匹配类型3")
+            source = html.find("div", {'class': 'crumb fl clearfix'})
+            if source:
+                type_match = 3
+                # captureutil.printlog(request_url + " 匹配类型3")
                 break
 
-            matchtype = 0
+            type_match = 0
             break
 
-        if matchtype == 1:
-            self.matchtag1(html, requesturl, sources)
-        elif matchtype == 2:
-            self.matchtag2(requesturl, sources)
-        elif matchtype == 3:
-            self.matchtag3(html, requesturl, sources)
+        if type_match == 1:
+            self.match_type1(html, request_url, source)
+        elif type_match == 2:
+            self.match_type2(request_url, source)
+        elif type_match == 3:
+            self.match_type3(html, request_url, source)
         else:
-            self.matchfailed(requesturl)
+            self.match_failed(request_url)
 
-    def matchfailed(self, requesturl):
-        self.setshowlog(requesturl + ' failed')
-        self.setresult(False)
 
-    def matchtag3(self, html, requesturl, sources):
-        # divtext = sources.contents[0].strip()
-        # if not divtext:
+    def match_failed(self, requesturl):
+        self.set_print_log(requesturl + ' failed')
+        self.set_result(False)
+
+    def match_type3(self, html, requesturl, sources):
         divtext = sources.get_text()
         currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '\n', '')
         divitemname = html.find("div", {'class': 'sku-name'})
@@ -76,14 +75,14 @@ class JDPage(JDBase):
             if itemname:
                 currentresult += '>' + itemname
 
-        price = getstoreprice(requesturl)
+        price = get_price(requesturl)
 
         # 保存请求成功的path
-        self.saveoutputlog(currentresult + price)
-        self.setshowlog(requesturl + ' succeed')
-        self.setresult(True)
+        self.save_result(currentresult + price)
+        self.set_print_log(requesturl + ' succeed')
+        self.set_result(True)
 
-    def matchtag2(self, requesturl, sources):
+    def match_type2(self, requesturl, sources):
         nametag = sources.find("div", {'id': 'name'})
         if nametag:
             h1itemname = nametag.find('h1')
@@ -92,19 +91,13 @@ class JDPage(JDBase):
                 # 替换结果中的内容
                 currentresult = captureutil.arrangement(itemname, '>>', '>')
 
-                price = getstoreprice(requesturl)
+                price = get_price(requesturl)
                 # 保存请求成功的path
-                self.saveoutputlog(currentresult + price)
-                self.setshowlog(requesturl + ' succeed')
-                self.setresult(True)
+                self.save_result(currentresult + price)
+                self.set_print_log(requesturl + ' succeed')
+                self.set_result(True)
 
-                # divtext = sources.get_text()
-                # currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '>', '>')
-
-                # 保存请求成功的path
-                # self.saveoutputlog(currentresult)
-
-    def matchtag1(self, html, requesturl, sources):
+    def match_type1(self, html, requesturl, sources):
         divtext = sources.get_text()
         currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '>', '>')
         itmenamehtml = html.find("div", {'id': 'name'})
@@ -114,24 +107,23 @@ class JDPage(JDBase):
             if itemname:
                 currentresult += '>' + itemname
 
-        # print('current info: ' + currentresult)
         # 保存请求成功的path
-        price = getstoreprice(requesturl)
-        self.saveoutputlog(currentresult + price)
-        captureutil.printlog(currentresult + price)
-        self.setshowlog(requesturl + ' succeed')
-        self.setresult(True)
+        price = get_price(requesturl)
+        self.save_result(currentresult + price)
+        captureutil.print_log(currentresult + price)
+        self.set_print_log(requesturl + ' succeed')
+        self.set_result(True)
 
     # 执行
     def execute(self):
-        self.findsource()
+        self.parse_html_source()
 
 
 pass
 
 if __name__ == '__main__':
     htmltext = captureutil.urlrequest("http://p.3.cn/prices/mgets?skuIds=J_1000017,J_&type=1", None, None,
-                                      captureutil.getpcua(), None, None,
+                                      captureutil.get_pc_useragent(), None, None,
                                       10)
     print(htmltext)
     # html = BeautifulSoup(htmltext, "html.parser")
