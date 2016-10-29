@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from jumei.jumeiurlstartwithnum import JumeiUrlStartWithNum
-import captureutil
+import fetch_util
 from bs4 import BeautifulSoup
 
 if __name__ == '__main__':
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     jumei.setshowlog(out)
 
     jumei.setcookie(None)
-    jumei.setua(captureutil.get_pc_useragent())
+    jumei.setua(fetch_util.get_pc_useragent())
     jumei.setrequestpath("847191")
 
     jumei.findsource()

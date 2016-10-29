@@ -3,8 +3,8 @@ from time import time
 
 import redis
 
-import captureconfig
-import captureutil
+import fetch_config
+import fetch_util
 
 '''
 redis conntion pool
@@ -12,7 +12,7 @@ redis conntion pool
 
 
 class RedisPool(object):
-    def __init__(self, host=captureconfig.redis_host, port=captureconfig.redis_port):
+    def __init__(self, host=fetch_config.redis_host, port=fetch_config.redis_port):
         self.host = host
         self.port = port
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     start = time()
 
-    for l in range(1000100, 1000150):
+    for l in range(1000000, 1000020):
         redis_client.hset("jd_20161024", l, "0")
 
     # redis_client.hset("jd_20161024", '100', "0")

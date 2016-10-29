@@ -5,7 +5,7 @@ from queue import Queue
 import threading
 import time
 
-import captureutil
+import fetch_util
 from jd import jdutil
 
 
@@ -71,11 +71,11 @@ def jdholder(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10,
     JDBase.set_succeed_log_path(succeedlog)
     JDBase.set_failed_log_path(failedlog)
     JDBase.set_result_save_path(outlog)
-    JDBase.set_useragent(captureutil.get_pc_useragent())
+    JDBase.set_useragent(fetch_util.get_pc_useragent())
     JDBase.set_request_path(task)
     JDBase.execute()
 
-    captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
+    fetch_util.print_log('process  ' + JDBase.getshowlog() + '\t\n')
 
     # 获取结果是否成功
     issucceed = JDBase.get_result()

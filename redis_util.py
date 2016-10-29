@@ -2,11 +2,11 @@
 
 import redis
 
-import captureconfig
+import fetch_config
 
 
 # 得到redis连接池
-def get_redis_pool_connection(host=captureconfig.redis_host, port=captureconfig.redis_port):
+def get_redis_pool_connection(host=fetch_config.redis_host, port=fetch_config.redis_port):
     pool = redis.ConnectionPool(host=host, port=port)
     return pool
 

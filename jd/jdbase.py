@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import captureutil
+import fetch_util
 import task_dispatch
 
 from time import sleep
@@ -60,7 +60,7 @@ class JDBase(object):
 
     # 保存结果
     def save_result(self, log):
-        captureutil.write(log.strip(), self.outputlog)
+        fetch_util.write(log.strip(), self.outputlog)
 
     # 请求url
     def get_html_source(self):
@@ -68,12 +68,12 @@ class JDBase(object):
         url = self.url
 
         if self.cookie:
-            return (captureutil.url_request_for_jd(url, None, self.cookie, self.useragent), url)
+            return (fetch_util.url_request_for_jd(url, None, self.cookie, self.useragent), url)
         else:
-            return (captureutil.url_request_for_jd(url, None, None, self.useragent), url)
+            return (fetch_util.url_request_for_jd(url, None, None, self.useragent), url)
 
     def sleep(self, start, end):
-        sleep(captureutil.randnum(start, end))
+        sleep(fetch_util.randnum(start, end))
 
     def set_print_log(self, showlog):
         self.showlog = showlog

@@ -2,16 +2,16 @@
 
 import os
 import json
-import captureutil
+import fetch_util
 
 from jd import jdconfig
 
 
 def init_task(urlsfile, succeedfile, failedfile):
-    exist = captureutil.file_exist(urlsfile)
+    exist = fetch_util.file_exist(urlsfile)
 
     if not exist:
-        captureutil.print_log(urlsfile + " not exist")
+        fetch_util.print_log(urlsfile + " not exist")
         return []
 
     with  open(urlsfile, 'r') as alltaskopener:
@@ -27,8 +27,8 @@ def init_task(urlsfile, succeedfile, failedfile):
         with  open(failedfile, "r") as failedfileopener:
             failedfilereadlines = failedfileopener.readlines()
 
-    beforetasks = captureutil.remove_duplicate(succeedfilereadlines, alltaskreadlines)
-    nowtasks = captureutil.remove_duplicate(failedfilereadlines, beforetasks)
+    beforetasks = fetch_util.remove_duplicate(succeedfilereadlines, alltaskreadlines)
+    nowtasks = fetch_util.remove_duplicate(failedfilereadlines, beforetasks)
 
     return nowtasks
 
@@ -37,11 +37,11 @@ def init_task(urlsfile, succeedfile, failedfile):
 def init_task2(alltaskreadlines, succeedfile, failedfile):
     beforetasks = []
     if os.path.exists(succeedfile) and os.path.getsize(succeedfile) > 0:
-        slls = captureutil.read(succeedfile)
+        slls = fetch_util.read(succeedfile)
         while True:
             try:
                 sll = slls.__next__()
-                beforetasks = captureutil.remove_duplicate(sll, alltaskreadlines)
+                beforetasks = fetch_util.remove_duplicate(sll, alltaskreadlines)
             except StopIteration:
                 break
     else:
@@ -49,16 +49,16 @@ def init_task2(alltaskreadlines, succeedfile, failedfile):
 
     nowtasks = []
     if os.path.exists(failedfile) and os.path.getsize(failedfile) > 0:
-        flls = captureutil.read(failedfile)
+        flls = fetch_util.read(failedfile)
         while True:
             try:
                 fll = flls.__next__()
-                nowtasks = captureutil.remove_duplicate(fll, beforetasks)
+                nowtasks = fetch_util.remove_duplicate(fll, beforetasks)
             except StopIteration:
                 break
     else:
         nowtasks = beforetasks
-        captureutil.print_log("failed file size = 0")
+        fetch_util.print_log("failed file size = 0")
     return nowtasks
 
 
@@ -123,14 +123,14 @@ def jd_price(url):
     num = url[start + 1:end]
 
     baseurl = 'http://p.3.cn/prices/mgets?callback=jQuery' + str(
-            captureutil.randnum(1000000,
-                                8888888)) + '&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_' + str(
+            fetch_util.randnum(1000000,
+                               8888888)) + '&type=1&area=1_72_4137_0&pdtk=&pduid=531394193&pdpin=&pdbp=0&skuIds=J_' + str(
             num)
 
     # captureutil.printlog("价格请求接口url: " + baseurl)
 
     # baseurl = 'http://p.3.cn/prices/mgets?skuIds=J_' + str(storeid) + ',J_&type=1'
-    priceJson = captureutil.openurl2(baseurl, refererurl=url)
+    priceJson = fetch_util.openurl2(baseurl, refererurl=url)
 
     jsstart = priceJson.find('{')
     jsend = priceJson.find('}')
@@ -164,11 +164,11 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
     for task in tasks:
         count += 1
 
-        jd.set_useragent(captureutil.get_pc_useragent())
+        jd.set_useragent(fetch_util.get_pc_useragent())
         jd.set_request_path(task)
         jd.execute()
 
-        captureutil.print_log('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jd.getshowlog() + '\t\n')
+        fetch_util.print_log('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jd.getshowlog() + '\t\n')
 
         # 获取结果是否成功
         issucceed = jd.get_result()
@@ -191,13 +191,13 @@ def jdholder2(queue, redis_client, JDBase, outlog, cookie=None, start=10, end=40
     # JDBase.set_failed_log_path(failedlog)
     JDBase.set_redis_client(redis_client)
     JDBase.set_result_save_path(outlog)
-    JDBase.set_useragent(captureutil.get_pc_useragent())
+    JDBase.set_useragent(fetch_util.get_pc_useragent())
     task_id = queue.get()[0]
-    task_id = captureutil.byte_to_str(task_id)
+    task_id = fetch_util.byte_to_str(task_id)
     JDBase.set_request_path(task_id)
     JDBase.execute()
 
-    captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
+    fetch_util.print_log('process  ' + JDBase.getshowlog() + '\t\n')
 
     # 获取结果是否成功
     issucceed = JDBase.get_result()
@@ -237,7 +237,7 @@ if __name__ == '__main__':
     # else:
     #     print("not null")
 
-    size = os.path.getsize('jdutil.py')
+    size = os.path.getsize('jd_util.py')
 
     print(size)
 

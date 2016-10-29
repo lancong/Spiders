@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import threading
-import captureutil
+import fetch_util
 
 from jumei import jumeiconfig
 from jumei.jumeiurlstartwithh import JumeiUrlStartWithH
@@ -22,7 +22,7 @@ def main():
     # 初始化任务
     tasks = inittask(urlfile, succeedlog, failedlog)
     # 按thread num 分配任务
-    tasks = captureutil.task_dispatch(tasks, jumeiconfig.thread_num)
+    tasks = fetch_util.task_dispatch(tasks, jumeiconfig.thread_num)
 
     # JumeiUrlStartWithD 实例
     jumei = JumeiUrlStartWithH()

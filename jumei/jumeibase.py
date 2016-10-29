@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from time import sleep
 
-import captureutil
+import fetch_util
 
 '''
 
@@ -45,29 +45,29 @@ class JuMeiBase(object):
 
     # 保存失败日志
     def savefailedlog(self, log):
-        captureutil.write(log.strip(), self.failedlog)
+        fetch_util.write(log.strip(), self.failedlog)
 
     # 保存成功日志
     def savesucceedlog(self, log):
-        captureutil.write(log.strip(), self.succeedlog)
+        fetch_util.write(log.strip(), self.succeedlog)
 
     # 保存结果
     def saveoutputlog(self, log):
-        captureutil.write(log.strip(), self.outputlog)
+        fetch_util.write(log.strip(), self.outputlog)
 
     # 请求url
     def gethtml(self):
         url = self.url
 
         if self.cookie:
-            return captureutil.urlrequest(url, None, self.cookie, self.useragent), url
+            return fetch_util.urlrequest(url, None, self.cookie, self.useragent), url
         else:
-            return captureutil.urlrequest(url, None, None, self.useragent), url
+            return fetch_util.urlrequest(url, None, None, self.useragent), url
 
         # return captureutil.urlrequest(self.url, None)
 
     def sleep(self, start, end):
-        sleep(captureutil.randnum(start, end))
+        sleep(fetch_util.randnum(start, end))
 
     def setshowlog(self, showlog):
         self.showlog = showlog

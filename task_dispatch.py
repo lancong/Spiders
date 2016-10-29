@@ -2,7 +2,7 @@
 
 import redis
 
-import captureutil
+import fetch_util
 import redis_util
 
 '''
@@ -10,7 +10,8 @@ import redis_util
 
 逻辑:在redis中新建一个hash表,数据格式如,    100000,no
 
-然后从中一直取数据,取出则把任务标识(初始(0),取出(1),成功(2),失败(3))
+# 然后从中一直取数据,取出则把任务标识(初始(0),取出(1),成功(2),失败(3))
+然后从中一直取数据,取出则把任务标识(初始(0),成功(2),失败(3))
 
 '''
 
@@ -56,10 +57,14 @@ def get_all_task_iter(redis_client, hash_key):
 def get_task_queue(queue, task_iter):
     for task in task_iter:
         status = task[1]
-        status = captureutil.byte_to_str(status)
+        status = fetch_util.byte_to_str(status)
         # print("status:", status)
         if status == '0':
             queue.put(task)
+
+# 结果自增
+def count_result(redis_client, key):
+    return redis_client.incr(key)
 
 
 if __name__ == '__main__':

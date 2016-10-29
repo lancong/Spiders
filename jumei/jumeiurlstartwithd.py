@@ -2,7 +2,7 @@
 
 from bs4 import BeautifulSoup
 from jumei.jumeibase import JuMeiBase
-import captureutil
+import fetch_util
 
 '''
 
@@ -31,7 +31,7 @@ class JumeiUrlStartWithD(JuMeiBase):
 
         if sources:
             divtext = sources.get_text()
-            currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '>', '>')
+            currentresult = requesturl + '\t' + fetch_util.replace_some_string(divtext, '>', '>')
 
             # 保存请求成功的path
             self.saveoutputlog(currentresult)
@@ -43,7 +43,7 @@ class JumeiUrlStartWithD(JuMeiBase):
             sources = html.find("div", {'class': 'subpage_menu'})
             if sources:
                 divtext = sources.get_text()
-                currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '>', '>')
+                currentresult = requesturl + '\t' + fetch_util.replace_some_string(divtext, '>', '>')
 
                 # 保存请求成功的path
                 self.saveoutputlog(currentresult)

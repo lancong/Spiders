@@ -1,27 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# redis_host = '123.206.93.35'
-redis_host = '127.0.0.1'
-
-redis_port = 6379
-
-# 代理ip地址
-proxy_page_url = "http://www.xicidaili.com/nn/"
-
-# 验证代理ip地址
-check_proxy_url = "http://ip.chinaz.com/getip.aspx"
-
-# 代理ip获取的页数,http://www.xicidaili.com/nn/1 -http://www.xicidaili.com/nn/8
-proxy_page_num = 5
-
-# 代理ip文件位置
-proxy_ip_file = "ProxyIps.txt"
-
-# 输出日志
-showlog = True
+import random
 
 # 不同user-agent内容,请求时随机切换,pc端
-user_agent_pc = [
+for_pc = [
     "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36",
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.1 Safari/537.36",
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2227.0 Safari/537.36",
@@ -175,7 +157,7 @@ user_agent_pc = [
 ]
 
 # 不同user-agent内容,请求时随机切换,手机端
-user_agent_mobile = [
+for_mobile = [
     'Mozilla/5.0 (iPhone; CPU iPhone OS 8_4_1 like Mac OS X; zh-CN) AppleWebKit/537.51.1 (KHTML, like Gecko) Mobile/12H321 UCBrowser/11.0.6.831 Mobile',
     'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
     'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.23 Mobile Safari/537.36',
@@ -183,3 +165,13 @@ user_agent_mobile = [
     'Mozilla/5.0 (Linux; U; Android 5.0.2; zh-CN; X900 Build/CBXCNOP5501304131S) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 UCBrowser/10.10.8.822 U3/0.8.0 Mobile Safari/534.30',
     'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
     'Mozilla/5.0 (iPad; CPU OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1']
+
+
+def pc():
+    index = random.randint(0, len(for_pc) - 1)
+    return for_pc[index]
+
+
+def mobile():
+    index = random.randint(0, len(for_mobile) - 1)
+    return for_mobile[index]

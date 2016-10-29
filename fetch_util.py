@@ -7,8 +7,9 @@ import random
 import urllib
 import codecs
 import requests
-import captureconfig
+import fetch_config
 import urllib.request
+import user_agent
 
 from io import StringIO
 from http import cookiejar
@@ -128,12 +129,6 @@ def open_url(url):
     return req.text
 
 
-def fetch(url, retry=0):
-    s = requests.Session()
-
-    pass
-
-
 def openurl2(url, refererurl, host='p.3.cn'):
     session = requests.session()
     headers = {
@@ -154,36 +149,35 @@ def openurl2(url, refererurl, host='p.3.cn'):
 
 # pc user-agent
 def get_pc_useragent():
-    ua = captureconfig.user_agent_pc
+    ua = user_agent.for_pc
     index = randnum(0, len(ua) - 1)
     return ua[index]
-    pass
 
 
 # mobile user-agent
 def get_mobile_useragent():
-    ua = captureconfig.user_agent_mobile
+    ua = user_agent.for_mobile
     index = randnum(0, len(ua) - 1)
     return ua[index]
 
 
 # 时间格式 20160202
-def time_format_yyyymmdd():
+def get_time_yyyymmdd():
     return time.strftime("%Y%m%d", time.localtime(time.time()))
 
 
 # 时间格式 2016-02-02
-def time_format_yyyymmdd2():
+def get_time_yyyymmdd2():
     return time.strftime("%Y-%m-%d", time.localtime(time.time()))
 
 
 # 时间格式 19:24:25
-def time_format_hhmmss():
+def get_time_hhmmss():
     return time.strftime("%H:%M:%S", time.localtime(time.time()))
 
 
 # 时间格式 20160202112222
-def time_format_yyyymmddhhmmss():
+def get_time_yyyymmddhhmmss():
     return time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))
 
 
@@ -199,6 +193,7 @@ def mkdirs(path):
         os.makedirs(path)
 
 
+# 读取内容并非全部加载入内存
 def read(fpath):
     BLOCK_SIZE = 4086
     with open(fpath, 'r') as f:
@@ -210,10 +205,11 @@ def read(fpath):
                 return
 
 
-def write(data, path, mode="a", charset='utf-8'):
+def write(data, path, mode="a", charset='utf-8', newline=True):
     with codecs.open(path, mode, charset) as writer:
         writer.write(data)
-        writer.write("\r\n")
+        if newline:
+            writer.write("\r\n")
         writer.flush()
 
 
@@ -283,7 +279,7 @@ def liststolist(lists):
 
 
 # 替换字符串中内容
-def arrangement(str, split, append):
+def replace_some_string(str, split, append):
     splits = str.split(split)
     ss = ''
     splen = len(splits)
@@ -309,19 +305,18 @@ def remove_last_char(str, char):
 
 # 输出日志
 def print_log(msg):
-    if captureconfig.showlog:
+    if fetch_config.print_log:
         print(time_format_yyyymmddhhmmss2() + " " + str(msg))
+
 
 # 调度日志
 def print_log_debug(msg):
-    if not captureconfig.showlog:
+    if fetch_config.print_debug_log:
         print(time_format_yyyymmddhhmmss2() + " " + str(msg))
 
 
 # 去重(将list2中包含list1的内容去掉)
 def remove_duplicate(list1, list2):
-    # list1 = clean(list1)
-    # list2 = clean(list2)
     for list in list1:
         list = list.strip()
         if list in list2:
@@ -345,6 +340,7 @@ def byte_to_str(byte):
         return result
     return result
 
+
 def file_exist(file):
     return os.path.exists(file)
 
@@ -356,13 +352,13 @@ def to_bs_object(html):
 import json
 
 if __name__ == '__main__':
-
-    num = 0
-    while True:
-        num += 1
-        print(get_pc_useragent())
-        if num == 20:
-            break
+    #
+    # num = 0
+    # while True:
+    #     num += 1
+    #     print(get_pc_useragent())
+    #     if num == 20:
+    #         break
 
     # index = ss.find('+', len(ss) - 1, len(ss))
     # if index > 0:

@@ -6,7 +6,7 @@ from queue import Queue
 
 import redis
 
-import captureutil
+import fetch_util
 import redis_util
 import task_dispatch
 
@@ -27,11 +27,11 @@ def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
     JDBase.set_succeed_log_path(succeedlog)
     JDBase.set_failed_log_path(failedlog)
     JDBase.set_result_save_path(outlog)
-    JDBase.set_useragent(captureutil.get_pc_useragent())
+    JDBase.set_useragent(fetch_util.get_pc_useragent())
     JDBase.set_request_path(task)
     JDBase.execute()
 
-    captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
+    fetch_util.print_log('process  ' + JDBase.getshowlog() + '\t\n')
 
     # 获取结果是否成功
     issucceed = JDBase.get_result()
@@ -54,7 +54,7 @@ def main():
     # 日志输出目录
     dirpath = jdconfig.jd_out_dir
 
-    captureutil.mkdirs(dirpath)
+    fetch_util.mkdirs(dirpath)
 
     # 输出结果文件
     outlog = dirpath + jdconfig.jd_out
@@ -73,10 +73,10 @@ def main():
     task_size = queue.qsize()
 
     if task_size == 0:
-        captureutil.print_log("任务总数为0,结束任务")
+        fetch_util.print_log("任务总数为0,结束任务")
         return
 
-    captureutil.print_log("任务总数: " + str(task_size))
+    fetch_util.print_log("任务总数: " + str(task_size))
 
     # 设置cookie
     cookie = jdutil.jd_pc_cookie('beijing')
@@ -97,11 +97,11 @@ def main():
     # 结束时间
     endtime = time()
 
-    captureutil.print_log("网页数据获取结束,耗时: " + str(float(endtime - starttime) / 60) + "分钟")
+    fetch_util.print_log("网页数据获取结束,耗时: " + str(float(endtime - starttime) / 60) + "分钟")
 
     # 写入耗时结果
-    costtimepath = dirpath + 'jd_' + captureutil.time_format_yyyymmddhhmmss() + '.txt'
-    captureutil.write(str(float(endtime - starttime) / 60), costtimepath, 'w')
+    costtimepath = dirpath + 'jd_' + fetch_util.get_time_yyyymmddhhmmss() + '.txt'
+    fetch_util.write(str(float(endtime - starttime) / 60), costtimepath, 'w')
 
     pass
 

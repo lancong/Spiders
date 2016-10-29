@@ -3,7 +3,7 @@
 import threading
 from time import sleep
 
-import captureutil
+import fetch_util
 from bs4 import BeautifulSoup
 
 
@@ -15,7 +15,7 @@ class MainCategoryUrls():
         self.gethtml()
 
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
+        content = fetch_util.urlrequest(self.url, None, None, useragent=fetch_util.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
 
     def geturls(self):
@@ -42,7 +42,7 @@ class ParentPage():
 
     # 得到页面内容
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
+        content = fetch_util.urlrequest(self.url, None, None, useragent=fetch_util.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
 
     # 返回基准url和页面最大数
@@ -109,7 +109,7 @@ class ParentPageUrl():
         self.gethtml()
 
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
+        content = fetch_util.urlrequest(self.url, None, None, useragent=fetch_util.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
 
     # 得到当前类别
@@ -121,7 +121,7 @@ class ParentPageUrl():
         # else:
         except:
             category = ''
-        return captureutil.arrangement(category, '\n', '')
+        return fetch_util.replace_some_string(category, '\n', '')
 
     # 得到当前页面的需要请求的urls
     def getcurpageurls(self):
@@ -144,7 +144,7 @@ class PageInfo():
         self.init()
 
     def gethtml(self):
-        content = captureutil.urlrequest(self.url, None, None, useragent=captureutil.get_pc_useragent())
+        content = fetch_util.urlrequest(self.url, None, None, useragent=fetch_util.get_pc_useragent())
         self.html = BeautifulSoup(content, 'html.parser')
         pass
 
@@ -165,8 +165,8 @@ class PageInfo():
             category = self.info.find('dd', {'class': 'tag-box'})
             if category:
                 s = category.get_text()
-                s = captureutil.arrangement(s, "\n", '+')
-                return captureutil.remove_last_char(s, '+')
+                s = fetch_util.replace_some_string(s, "\n", '+')
+                return fetch_util.remove_last_char(s, '+')
 
     # 得到标签
     def gettag(self):
@@ -174,8 +174,8 @@ class PageInfo():
             tag = self.info.find('div', {'class': 'side-tags clearfix'})
             if tag:
                 s = tag.get_text()
-                s = captureutil.arrangement(s, "\n", '+')
-                return captureutil.remove_last_char(s, '+')
+                s = fetch_util.replace_some_string(s, "\n", '+')
+                return fetch_util.remove_last_char(s, '+')
 
     # 得到应用名称
     def getappname(self):
@@ -208,15 +208,15 @@ def func(lists, maincategory, outfile):
 
             # 打印日志
             # captureutil.printlog(currenturl + '\t' + appname)
-            captureutil.print_log('[' + str(count) + '/' + str(alllen) + '] ' + currenturl)
+            fetch_util.print_log('[' + str(count) + '/' + str(alllen) + '] ' + currenturl)
 
             outinfo = currenturl + '\t' + maincategory + '>' + appname + '\tc:' + category + '\tt:' + tag
 
             # 写入结果
-            captureutil.write(outinfo, outfile)
+            fetch_util.write(outinfo, outfile)
 
             # 随机休眠几秒
-            sleep(captureutil.randnum(10, 40))
+            sleep(fetch_util.randnum(10, 40))
 
 
 def main():
@@ -236,16 +236,16 @@ def main():
 
     allurls = []
 
-    captureutil.print_log('update request urls ...')
+    fetch_util.print_log('update request urls ...')
 
     for specurl in specurls:
         maincategoryurls = MainCategoryUrls(specurl)
         url = maincategoryurls.geturls()
         allurls.append(url)
 
-    urls = captureutil.liststolist(allurls)
+    urls = fetch_util.liststolist(allurls)
 
-    captureutil.print_log('update request urls finished, len: ' + str(len(urls)))
+    fetch_util.print_log('update request urls finished, len: ' + str(len(urls)))
 
     for url in urls:
 
@@ -263,7 +263,7 @@ def main():
 
                 if currenturls and len(currenturls) > 0:
 
-                    tasks = captureutil.task_dispatch(currenturls, 10)
+                    tasks = fetch_util.task_dispatch(currenturls, 10)
 
                     threads = []
 
@@ -277,10 +277,10 @@ def main():
                         th.join()
 
         # 写入结果
-        captureutil.write('\r\n------ i am line -----\r\n', outfile)
-        captureutil.print_log("has finish: " + url)
+        fetch_util.write('\r\n------ i am line -----\r\n', outfile)
+        fetch_util.print_log("has finish: " + url)
 
-        sleep(captureutil.randnum(10, 30))
+        sleep(fetch_util.randnum(10, 30))
 
 
 # def main():

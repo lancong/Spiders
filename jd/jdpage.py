@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import captureutil
+import fetch_util
 
 from jd import jdutil
 from jd.jdbase import JDBase
@@ -68,7 +68,7 @@ class JDPage(JDBase):
 
     def match_type3(self, html, requesturl, sources):
         divtext = sources.get_text()
-        currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '\n', '')
+        currentresult = requesturl + '\t' + fetch_util.replace_some_string(divtext, '\n', '')
         divitemname = html.find("div", {'class': 'sku-name'})
         if divitemname:
             itemname = divitemname.get_text()
@@ -89,7 +89,7 @@ class JDPage(JDBase):
             itemname = h1itemname.contents[0]
             if itemname:
                 # 替换结果中的内容
-                currentresult = captureutil.arrangement(itemname, '>>', '>')
+                currentresult = fetch_util.replace_some_string(itemname, '>>', '>')
 
                 price = get_price(requesturl)
                 # 保存请求成功的path
@@ -99,7 +99,7 @@ class JDPage(JDBase):
 
     def match_type1(self, html, requesturl, sources):
         divtext = sources.get_text()
-        currentresult = requesturl + '\t' + captureutil.arrangement(divtext, '>', '>')
+        currentresult = requesturl + '\t' + fetch_util.replace_some_string(divtext, '>', '>')
         itmenamehtml = html.find("div", {'id': 'name'})
         if itmenamehtml:
             h1itemname = itmenamehtml.find('h1')
@@ -110,7 +110,7 @@ class JDPage(JDBase):
         # 保存请求成功的path
         price = get_price(requesturl)
         self.save_result(currentresult + price)
-        captureutil.print_log(currentresult + price)
+        fetch_util.print_log(currentresult + price)
         self.set_print_log(requesturl + ' succeed')
         self.set_result(True)
 
@@ -122,9 +122,9 @@ class JDPage(JDBase):
 pass
 
 if __name__ == '__main__':
-    htmltext = captureutil.urlrequest("http://p.3.cn/prices/mgets?skuIds=J_1000017,J_&type=1", None, None,
-                                      captureutil.get_pc_useragent(), None, None,
-                                      10)
+    htmltext = fetch_util.urlrequest("http://p.3.cn/prices/mgets?skuIds=J_1000017,J_&type=1", None, None,
+                                     fetch_util.get_pc_useragent(), None, None,
+                                     10)
     print(htmltext)
     # html = BeautifulSoup(htmltext, "html.parser")
     # sources = html.find("div", {'class': 'crumb fl clearfix'})

@@ -12,7 +12,7 @@ import urllib
 import urllib.request
 from bs4 import BeautifulSoup
 
-import captureconfig
+import fetch_config
 
 outfile = '/Users/Lan/TestDir/output/17173_yeyou.txt'
 outfilebak = '/Users/Lan/TestDir/output/17173_yeyou_url_bak.txt'
@@ -63,7 +63,7 @@ def randnum(minnum, maxnum):
 
 # pc user-agent
 def getpcua():
-    ua = captureconfig.user_agent_pc
+    ua = fetch_config.user_agent_pc
     index = randnum(0, len(ua) - 1)
     return ua[index]
     pass

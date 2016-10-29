@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
 
-import captureutil
+import fetch_util
 
 
 # 适用于聚美
 def inittask(urlsfile, succeedfile, failedfile):
-    exist = captureutil.file_exist(urlsfile)
+    exist = fetch_util.file_exist(urlsfile)
 
     if not exist:
-        captureutil.print_log(urlsfile + " not exist")
+        fetch_util.print_log(urlsfile + " not exist")
         return []
 
     alltaskopener = open(urlsfile, 'r')
@@ -27,8 +27,8 @@ def inittask(urlsfile, succeedfile, failedfile):
         failedfileopener = open(failedfile, "r")
         failedfilereadlines = failedfileopener.readlines()
 
-    beforetasks = captureutil.remove_duplicate(succeedfilereadlines, alltaskreadlines)
-    nowtasks = captureutil.remove_duplicate(failedfilereadlines, beforetasks)
+    beforetasks = fetch_util.remove_duplicate(succeedfilereadlines, alltaskreadlines)
+    nowtasks = fetch_util.remove_duplicate(failedfilereadlines, beforetasks)
 
     if alltaskopener:
         alltaskopener.close()
@@ -91,11 +91,11 @@ def jumeiholder(tasks, JuMeiBase, succeedlog, failedlog, outlog, cookie=None, st
     for task in tasks:
         count += 1
 
-        jumei.set_useragent(captureutil.get_pc_useragent())
+        jumei.set_useragent(fetch_util.get_pc_useragent())
         jumei.set_request_path(task)
         jumei.execute()
 
-        captureutil.print_log('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jumei.getshowlog() + '\t\n')
+        fetch_util.print_log('process [' + str(count) + '/' + str(taskslen) + '] ' + ' ' + jumei.getshowlog() + '\t\n')
 
         # 获取结果是否成功
         issucceed = jumei.get_result()
