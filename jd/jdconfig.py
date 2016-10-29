@@ -11,7 +11,7 @@ jd_failed = 'jd_failed.txt'
 
 jd_lastindex = 'jd_lastindex.txt'
 # 开启的线程数
-thread_num = 10
+thread_num = 5
 
 # jd id start
 jd_url_start = 1000000

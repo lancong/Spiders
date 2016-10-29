@@ -1,9 +1,10 @@
-
 # -*- coding: utf-8 -*-
 
 import captureutil
+import task_dispatch
 
 from time import sleep
+
 
 class JDBase(object):
     host = 'http://item.jd.hk/'
@@ -44,13 +45,18 @@ class JDBase(object):
     def set_result_save_path(self, outputlog):
         self.outputlog = outputlog
 
+    def set_redis_client(self, redis_client):
+        self.redis_client = redis_client
+
     # 保存失败日志
     def save_failed_log(self, log):
-        captureutil.write(log.strip(), self.failedlog)
+        # captureutil.write(log.strip(), self.failedlog)
+        task_dispatch.sign_task(self.redis_client, 'jd_20161024', log, '3')
 
     # 保存成功日志
     def save_succeed_log(self, log):
-        captureutil.write(log.strip(), self.succeedlog)
+        # captureutil.write(log.strip(), self.succeedlog)
+        task_dispatch.sign_task(self.redis_client, 'jd_20161024', log, '2')
 
     # 保存结果
     def save_result(self, log):

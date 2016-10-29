@@ -184,14 +184,17 @@ def jdholder(tasks, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
         jd.sleep(start, end)
 
 
-def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
+def jdholder2(queue, redis_client, JDBase, outlog, cookie=None, start=10, end=40):
     if cookie:
         JDBase.set_cookie(cookie)
-    JDBase.set_succeed_log_path(succeedlog)
-    JDBase.set_failed_log_path(failedlog)
+    # JDBase.set_succeed_log_path(succeedlog)
+    # JDBase.set_failed_log_path(failedlog)
+    JDBase.set_redis_client(redis_client)
     JDBase.set_result_save_path(outlog)
     JDBase.set_useragent(captureutil.get_pc_useragent())
-    JDBase.set_request_path(task)
+    task_id = queue.get()[0]
+    task_id = captureutil.byte_to_str(task_id)
+    JDBase.set_request_path(task_id)
     JDBase.execute()
 
     captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
@@ -201,10 +204,10 @@ def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10
 
     if issucceed:
         # 保存成功flag
-        JDBase.save_succeed_log(task)
+        JDBase.save_succeed_log(task_id)
     else:
         # 保存失败flag
-        JDBase.save_failed_log(task)
+        JDBase.save_failed_log(task_id)
 
         # 睡眠
     JDBase.sleep(start, end)

@@ -4,6 +4,8 @@
 from queue import Queue
 import threading
 import time
+
+import captureutil
 from jd import jdutil
 
 
@@ -62,9 +64,35 @@ class Work(threading.Thread):
             except:
                 break
 
+def jdholder(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
+    if cookie:
+        JDBase.set_cookie(cookie)
+
+    JDBase.set_succeed_log_path(succeedlog)
+    JDBase.set_failed_log_path(failedlog)
+    JDBase.set_result_save_path(outlog)
+    JDBase.set_useragent(captureutil.get_pc_useragent())
+    JDBase.set_request_path(task)
+    JDBase.execute()
+
+    captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
+
+    # 获取结果是否成功
+    issucceed = JDBase.get_result()
+
+    if issucceed:
+        # 保存成功flag
+        JDBase.save_succeed_log(task)
+    else:
+        # 保存失败flag
+        JDBase.save_failed_log(task)
+
+        # 睡眠
+    JDBase.sleep(start, end)
+
 
 # 具体要做的任务
-def do_job(args):
+def do_job(*args):
     # time.sleep(0.1)  # 模拟处理时间
     # print(threading.current_thread(), list(args))
     jdutil.jdholder2(args[0], args[1], args[2], args[3], args[4], args[5])

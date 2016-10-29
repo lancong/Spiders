@@ -67,6 +67,10 @@ if __name__ == '__main__':
 
     start = time()
 
+    for l in range(1000100, 1000150):
+        redis_client.hset("jd_20161024", l, "0")
+
+    # redis_client.hset("jd_20161024", '100', "0")
     # lss = []
     # for l in range(1000):
     #     redis_client.sadd('all_task', l)
@@ -75,9 +79,9 @@ if __name__ == '__main__':
     # redis_client.sadd('succeed_task', set(lss))
 
     # -----------
-    # end = time()
+    end = time()
 
-    # print(end - start)
+    print(end - start)
 
     # res = redis_client.smembers('all_task')
 
@@ -144,22 +148,28 @@ if __name__ == '__main__':
 
 
     # 2016.10.28 15:45:49 [b'941', b'517', b'672', b'145', b'985']
-    ts = redis_client.srandmember('all_task', 5)
-    captureutil.print_log_debug(type(ts))
-    captureutil.print_log_debug(ts)
+    # ts = redis_client.srandmember('all_task', 5)
+    # captureutil.print_log_debug(type(ts))
+    # captureutil.print_log_debug(ts)
 
-    lr=[]
-    for t in ts:
-        lr.append(t.decode())
-
-    print(len(lr))
-
-    redis_client.srem('all_tasks', lr)
+    # lr=[]
+    # for t in ts:
+    #     lr.append(t.decode())
+    #
+    # print(len(lr))
+    #
+    # redis_client.srem('all_tasks', lr)
 
     # captureutil.print_log_debug(redis_client.spop('all_task'))
 
 
 
-    captureutil.print_log_debug(redis_client.scard('all_task'))
+    # captureutil.print_log_debug(redis_client.scard('all_task'))
+
+
+    # l = ['1000001', '1000002', '1000003']
+    # ls = redis_client.hmget("jd_20161024", "1000000", "1000001", "1000002")
+    #
+    # print(ls)
 
     pass

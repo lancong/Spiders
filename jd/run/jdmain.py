@@ -1,7 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import threading
+from asyncio import tasks
+from queue import Queue
+
+import redis
+
 import captureutil
+import redis_util
+import task_dispatch
 
 from jd import jdutil
 from time import time
@@ -12,6 +19,33 @@ from jd.jdpage import JDPage
 
 京东爬虫任务开始入口
 '''
+
+
+def jdholder2(task, JDBase, succeedlog, failedlog, outlog, cookie=None, start=10, end=40):
+    if cookie:
+        JDBase.set_cookie(cookie)
+    JDBase.set_succeed_log_path(succeedlog)
+    JDBase.set_failed_log_path(failedlog)
+    JDBase.set_result_save_path(outlog)
+    JDBase.set_useragent(captureutil.get_pc_useragent())
+    JDBase.set_request_path(task)
+    JDBase.execute()
+
+    captureutil.print_log('process  ' + JDBase.getshowlog() + '\t\n')
+
+    # 获取结果是否成功
+    issucceed = JDBase.get_result()
+
+    if issucceed:
+        # 保存成功flag
+        JDBase.save_succeed_log(task)
+    else:
+        # 保存失败flag
+        JDBase.save_failed_log(task)
+
+        # 睡眠
+    JDBase.sleep(start, end)
+
 
 def main():
     # 开始时间
@@ -24,23 +58,25 @@ def main():
 
     # 输出结果文件
     outlog = dirpath + jdconfig.jd_out
-    # target urls
-    urlfile = jdconfig.jd_urls
 
-    total = jdconfig.jd_url_end - jdconfig.jd_url_start
-    allurls = jdutil.createtask(jdconfig.jd_url_start, total)
+    redis_pool = redis_util.get_redis_pool_connection()
+    redis_client = redis.Redis(connection_pool=redis_pool)
 
-    # succeed log
-    succeedlog = dirpath + jdconfig.jd_succeed
-    # failed log
-    failedlog = dirpath + jdconfig.jd_failed
-    # 初始化任务
-    inittasks = jdutil.init_task2(allurls, succeedlog, failedlog)
+    # all_task_size = task_dispatch.get_all_task_size(redis_client, 'jd_20161024')
 
-    captureutil.print_log("任务总数: " + str(len(inittasks)))
+    task_iter = task_dispatch.get_all_task_iter(redis_client, 'jd_20161024')
 
-    # 按thread num 分配任务
-    tasks = captureutil.task_dispatch(inittasks, jdconfig.thread_num)
+    queue = Queue()
+
+    task_dispatch.get_task_queue(queue, task_iter)
+
+    task_size = queue.qsize()
+
+    if task_size == 0:
+        captureutil.print_log("任务总数为0,结束任务")
+        return
+
+    captureutil.print_log("任务总数: " + str(task_size))
 
     # 设置cookie
     cookie = jdutil.jd_pc_cookie('beijing')
@@ -50,9 +86,9 @@ def main():
     while True:
 
         threads = []
-        for task in tasks:
+        for i in range(jdconfig.thread_num):
             # th = threading.Thread(target=jdutil.jdholder, args=(task, jd, succeedlog, failedlog, outlog, cookie, 0, 5))
-            th = threading.Thread(target=jdutil.jdholder, args=(task, jd, succeedlog, failedlog, outlog, cookie, 5, 10))
+            th = threading.Thread(target=jdutil.jdholder2, args=(queue, redis_client, jd, outlog, cookie, 5, 10))
             th.start()
             threads.append(th)
         for th in threads:
@@ -122,5 +158,7 @@ if __name__ == '__main__':
     # content = captureutil.htmlformat(content)
     #
     # print(content)
+
+
 
     pass

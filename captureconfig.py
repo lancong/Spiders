@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+# redis_host = '123.206.93.35'
 redis_host = '127.0.0.1'
 
 redis_port = 6379
@@ -17,7 +18,7 @@ proxy_page_num = 5
 proxy_ip_file = "ProxyIps.txt"
 
 # 输出日志
-showlog = False
+showlog = True
 
 # 不同user-agent内容,请求时随机切换,pc端
 user_agent_pc = [
