@@ -182,7 +182,7 @@ def get_time_yyyymmddhhmmss():
 
 
 # 时间格式 2016-02-02 11:22:22
-def time_format_yyyymmddhhmmss2():
+def get_time_yyyymmddhhmmss2():
     return time.strftime("%Y.%m.%d %H:%M:%S", time.localtime(time.time()))
 
 
@@ -306,13 +306,13 @@ def remove_last_char(str, char):
 # 输出日志
 def print_log(msg):
     if fetch_config.print_log:
-        print(time_format_yyyymmddhhmmss2() + " " + str(msg))
+        print(get_time_yyyymmddhhmmss2() + " " + str(msg))
 
 
 # 调度日志
 def print_log_debug(msg):
     if fetch_config.print_debug_log:
-        print(time_format_yyyymmddhhmmss2() + " " + str(msg))
+        print(get_time_yyyymmddhhmmss2() + " " + str(msg))
 
 
 # 去重(将list2中包含list1的内容去掉)
@@ -349,7 +349,9 @@ def to_bs_object(html):
     return BeautifulSoup(html, 'html.parser')
 
 
-import json
+def sleep(time):
+    time.sleep(time)
+
 
 if __name__ == '__main__':
     #

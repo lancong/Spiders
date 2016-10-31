@@ -68,7 +68,7 @@ if __name__ == '__main__':
     start = time()
 
     for l in range(1000000, 1000020):
-        redis_client.hset("jd_20161024", l, "0")
+        redis_client.hset("jd_20161031", l, "0")
 
     # redis_client.hset("jd_20161024", '100', "0")
     # lss = []

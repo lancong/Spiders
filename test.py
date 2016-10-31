@@ -1,3 +1,7 @@
+
+
+from queue import Queue
+
 def hello():
     return 'lan', 'luo'
 
@@ -39,8 +43,22 @@ if __name__ == '__main__':
     # for task in tasks:
     #     print(task)
 
-    res = hello()
-    print(type(res))
+    # res = hello()
+    # print(type(res))
+    #
+    # print(res[0],res[1])
 
-    print(res[0],res[1])
+
+    # def get_user_agent():
+    #     ua = UserAgent()
+    #     return ua.random
+    #
+    # print(get_user_agent())
+
+
+    queue = Queue()
+    queue.put(('1000000','id'))
+
+
+    print(queue.get())
     pass

@@ -8,6 +8,7 @@ import fetch_util
 import task_dispatch
 
 from jd2 import jd_util
+from jd2 import jd_config
 
 '''
 
@@ -20,21 +21,16 @@ from jd2 import jd_util
 host = 'http://item.jd.hk/'
 suffix = '.html'
 
-# redis任务表
-redis_task_key = 'jd_20161024'
-# redis成功与失败记录表
-redis_succeed_count_key = 'jd_20161024_succeed'
-redis_failed_count_key = 'jd_20161024_failed'
-
 
 # 拼接请求url
-def make_request_url(queue, redis_client):
-    try:
-        queun_info = queue.get(block=False, timeout=10)
-    except:
-        raise
+def make_request_url(task_id, redis_client):
+    # try:
+    #     queun_info = queue.get(block=False, timeout=10)
+    # except:
+    #     raise
 
-    url_path = fetch_util.byte_to_str(queun_info[0])
+    # url_path = fetch_util.byte_to_str(queun_info[0])
+    url_path = fetch_util.byte_to_str(task_id)
     # task_dispatch.sign_task(redis_client, redis_task_key, url_path, 1)
     return host + url_path + suffix, url_path
 
@@ -42,21 +38,22 @@ def make_request_url(queue, redis_client):
 # 请求页面
 def get_html(url, cookie=None, host=None):
     resp = jd_util.fetch(url, cookie, host)
-    if 200 == resp.status_code:
-        return resp.text
-    else:
-        return ''
+    # if 200 == resp.status_code:
+    #     return resp.text
+    # else:
+    #     return ''
+    return resp.text
 
 
 # 解析页面
-def parse_html(html):
+def parse_html(request_url, html):
     if not html:
         return ''
 
     # 将正文内容转换为一个BeautifulSoup对象
     html = fetch_util.to_bs_object(html)
     # 得到合适的页面解析类型
-    parser_type_source = get_parser_type_and_source(html)
+    parser_type_source = get_parser_type_and_source(request_url, html)
     # 得到页面解析结果
     return get_parser_result(html, parser_type_source)
 
@@ -88,8 +85,6 @@ def save_result(path, request_url, bread_tag_name, price):
         fetch_util.print_log(request_url + ' succeed')
         fetch_util.print_log_debug(save_info)
 
-        fetch_util.print_log_debug("path: " + path)
-
         if path:
             fetch_util.write(save_info, path)
         else:
@@ -102,32 +97,34 @@ def save_result(path, request_url, bread_tag_name, price):
 def update_redis(redis_client, result, item_id):
     if result:
         # 更新redis执行结果状态
-        task_dispatch.sign_task(redis_client, redis_task_key, item_id, 2)
+        task_dispatch.sign_task(redis_client, jd_config.redis_task_key, item_id, 2)
         # 成功计数加1
-        task_dispatch.count_result(redis_client, redis_succeed_count_key)
+        task_dispatch.count_result(redis_client, jd_config.redis_succeed_count_key)
     else:
         # 更新redis执行结果状态
-        task_dispatch.sign_task(redis_client, redis_task_key, item_id, 3)
+        task_dispatch.sign_task(redis_client, jd_config.redis_task_key, item_id, 3)
         # 失败计数加1
-        task_dispatch.count_result(redis_client, redis_failed_count_key)
+        task_dispatch.count_result(redis_client, jd_config.redis_failed_count_key)
 
 
 # --------------------- 页面解析方法 ---------------------
 
 # 判断合适的页面解析者
-def get_parser_type_and_source(html):
+def get_parser_type_and_source(request_url, html):
     source = html.find("div", {'class': 'breadcrumb'})
     if source:
-        fetch_util.print_log_debug("匹配类型1")
+        fetch_util.print_log_debug(request_url + " 匹配类型1")
         return 1, source
     source = html.find("div", {'id': 'itemInfo'})
     if source:
-        fetch_util.print_log_debug("匹配类型2")
+        fetch_util.print_log_debug(request_url + " 匹配类型2")
         return 2, source
     source = html.find("div", {'class': 'crumb fl clearfix'})
     if source:
-        fetch_util.print_log_debug("匹配类型3")
+        fetch_util.print_log_debug(request_url + " 匹配类型3")
         return 3, source
+
+    fetch_util.print_log_debug(request_url + " 匹配失败")
     # 未匹配类型
     return 0, None
 
@@ -194,9 +191,9 @@ def parser_type_3(html, source):
 
 
 # jd爬虫任务
-def jd_spider_task(queue, redis_client, cookie=None, host=None, path=None):
+def jd_spider_task(task_id, redis_client, cookie=None, host=None, path=None, is_sleep=jd_config.is_sleep):
     # 拼接url
-    request_url_info = make_request_url(queue, redis_client)
+    request_url_info = make_request_url(task_id, redis_client)
     # 商品请求url
     request_url = request_url_info[0]
     # 商品id
@@ -204,18 +201,17 @@ def jd_spider_task(queue, redis_client, cookie=None, host=None, path=None):
     # 请求页面
     html = get_html(request_url, cookie, host)
     # 得到页面解析结果
-    parse_result = parse_html(html)
-
+    parse_result = parse_html(request_url, html)
     # 得到商品价格
     item_price = get_item_price(request_url, item_id)
     # 保存信息
     save_result(path, request_url, parse_result, item_price)
-
     # 更新redis信息
     update_redis(redis_client, parse_result, item_id)
 
-    # 休眠
-    sleep(5)
+    if is_sleep:
+        # 休眠
+        fetch_util.sleep(random.randint(jd_config.sleep_time_min, jd_config.sleep_time_max))
 
 
 def task(queue, redis_client, cookie, host, result_save_path):
@@ -226,14 +222,12 @@ def task(queue, redis_client, cookie, host, result_save_path):
 # 测试指定页面
 def parse_specail_url(url):
     html = get_html(url)
-    return parse_html(html)
+    return parse_html(url, html)
 
 
 if __name__ == '__main__':
-
     # 测试指定页面,数据是否能够提取
     url = 'http://item.jd.hk/1000017.html'
     print(parse_specail_url(url))
-
 
     pass
